@@ -23,10 +23,4 @@ io.on('connection', async (socket) => {
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.get('/', (request, response) => {
-  return response.json({
-    message: 'Hellow Websocket',
-  });
-});
-
 export { server, io };
