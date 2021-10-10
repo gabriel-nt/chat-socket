@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import path from 'path';
 import express from 'express';
 import mongoose, { ConnectOptions } from 'mongoose';
