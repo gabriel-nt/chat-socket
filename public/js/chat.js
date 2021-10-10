@@ -1,5 +1,18 @@
 const socket = io('http://localhost:3000');
 
-socket.on('chat_init', (data) => {
-  console.log(data);
-});
+function onLoad() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const name = urlParams.get('name');
+  const email = urlParams.get('email');
+  const avatar = urlParams.get('avatar');
+
+  console.log(name, email, avatar);
+
+  socket.emit('start', {
+    email,
+    name,
+    avatar,
+  });
+}
+
+onLoad();
