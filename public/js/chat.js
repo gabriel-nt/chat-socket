@@ -1,5 +1,5 @@
 const socket = io('http://localhost:3000');
-let roomId = '';
+let idChatRoom = '';
 
 function onLoad() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -31,6 +31,32 @@ function onLoad() {
       }
     });
   });
+
+  socket.on('message', (data) => {
+    console.log('message', data);
+    addMessage(data);
+  });
+}
+
+function addMessage(data) {
+  const divMessageUser = document.getElementById('message_user');
+
+  divMessageUser.innerHTML += `
+  <span class="user_name user_name_date">
+    <img
+      class="img_user"
+      src="${data.user.avatar}"
+    />
+    <strong>${data.user.name}</strong>
+    <br />
+    <span>${dayjs(data.message.created_at).format(
+      'DD/MM/YYYY HH:mm'
+    )}</span></span
+  >
+  <div class="messages">
+    <span class="chat_message">${data.message.text}</span>
+  </div>
+  `;
 }
 
 function addUser(user) {
@@ -50,8 +76,12 @@ function addUser(user) {
 }
 
 document.getElementById('users_list').addEventListener('click', (event) => {
+  document.getElementById('message_user').innerHTML = '';
+
   if (event.target && event.target.matches('li.user_name_list')) {
     const idUser = event.target.getAttribute('idUser');
+
+    document.getElementById('user_message').classList.remove('hidden');
 
     socket.emit(
       'start_chat',
@@ -59,10 +89,37 @@ document.getElementById('users_list').addEventListener('click', (event) => {
         idUser,
       },
       (data) => {
-        roomId = data.idChatRoom;
+        idChatRoom = data.idChatRoom;
+        data.messages.forEach((message) => {
+          const data = {
+            message,
+            user: message.to,
+          };
+
+          addMessage(data);
+        });
       }
     );
   }
 });
+
+document
+  .getElementById('user_message')
+  .addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      const message = event.target.value;
+
+      if (message) {
+        const data = {
+          message,
+          idChatRoom,
+        };
+
+        socket.emit('message', data);
+
+        event.target.value = '';
+      }
+    }
+  });
 
 onLoad();
