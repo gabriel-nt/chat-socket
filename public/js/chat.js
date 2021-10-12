@@ -57,11 +57,9 @@ function addMessage(data) {
       src="${data.user.avatar}"
     />
     <strong>${data.user.name}</strong>
-    <br />
-    <span>${dayjs(data.message.created_at).format(
-      'DD/MM/YYYY HH:mm'
-    )}</span></span
-  >
+    &nbsp;
+    <span>${dayjs(data.message.created_at).format('DD/MM/YYYY HH:mm')}</span>
+  </span>
   <div class="messages">
     <span class="chat_message">${data.message.text}</span>
   </div>
@@ -86,14 +84,22 @@ function addUser(user) {
 
 document.getElementById('users_list').addEventListener('click', (event) => {
   document.getElementById('message_user').innerHTML = '';
+  document
+    .querySelectorAll('li.user_name_list')
+    .forEach((item) => item.classList.remove('user_in_focus'));
 
   if (event.target && event.target.matches('li.user_name_list')) {
     const idUser = event.target.getAttribute('idUser');
 
-    const notification = document.querySelector(`#user_${idUser}`);
+    event.target.classList.add('user_in_focus');
+
+    const notification = document.querySelector(
+      `#user_${idUser} .notification`
+    );
     notification && notification.remove();
 
     document.getElementById('user_message').classList.remove('hidden');
+    document.getElementById('send_message').classList.remove('hidden');
 
     socket.emit(
       'start_chat',
@@ -101,7 +107,7 @@ document.getElementById('users_list').addEventListener('click', (event) => {
         idUser,
       },
       (data) => {
-        idChatRoom = data.idChatRoom;
+        idChatRoom = data.room.idChatRoom;
         data.messages.forEach((message) => {
           const data = {
             message,
@@ -112,6 +118,21 @@ document.getElementById('users_list').addEventListener('click', (event) => {
         });
       }
     );
+  }
+});
+
+document.getElementById('send_message').addEventListener('click', (event) => {
+  const message = document.getElementById('user_message').value;
+
+  if (message) {
+    const data = {
+      message,
+      idChatRoom,
+    };
+
+    socket.emit('message', data);
+
+    document.getElementById('user_message').value = '';
   }
 });
 

@@ -17,9 +17,7 @@ mongoose.connect('mongodb://localhost/chatsocket', {
 
 const io = new Server(server);
 
-io.on('connection', async (socket) => {
-  console.log('Socket', socket.id);
-});
+io.on('connection', async (socket) => {});
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
